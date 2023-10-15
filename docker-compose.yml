@@ -1,0 +1,28 @@
+version: "3.5"
+
+services:
+  oci:
+    build:
+      context: docker
+    image: oci-pulumi-tooling
+    environment:
+      HISTFILE: /root/history/.bash_history
+      USER_OCID: ${USER_OCID}
+      FINGERPRINT: ${FINGERPRINT} 
+      TENANCY_OCID: ${TENANCY_OCID} 
+      PRIVATE_KEY_PATH: /root/.ssh/${PRIVATE_KEY_NAME}
+      PUBLIC_KEY_PATH: /root/.ssh/${PUBLIC_KEY_NAME}
+      INSTANCE_PUBLIC_KEY_NAME: /root/.ssh/${INSTANCE_PUBLIC_KEY_NAME}
+      REGION: ${REGION}
+      PULUMI_ACCESS_TOKEN: ${PULUMI_ACCESS_TOKEN}
+
+    volumes:
+      - .:/code
+      - ~/.ssh:/host-ssh
+      - ~/.oci:/root/.oci
+      - ~/.pulumi:/root/.pulumi
+      - oci-pulumi-history-volume:/root/history
+
+volumes:
+  oci-pulumi-history-volume:
+    driver: local

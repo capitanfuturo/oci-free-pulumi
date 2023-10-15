@@ -1,0 +1,12 @@
+{
+    "name": "infrastructure",
+    "main": "index.ts",
+    "devDependencies": {
+        "@types/node": "^18"
+    },
+    "dependencies": {
+        "@pulumi/cloudinit": "1.3.0",
+        "@pulumi/oci": "0.13.0",
+        "@pulumi/pulumi": "3.60.0"
+    }
+}

@@ -1,0 +1,5 @@
+.env
+/bin/
+oci-free/infrastructure/package-lock.json
+oci-free/infrastructure/node_modules/
+oci-free/infrastructure/Pulumi.*.yaml
