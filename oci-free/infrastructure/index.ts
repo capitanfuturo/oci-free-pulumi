@@ -154,9 +154,6 @@ const images = oci.core.getImagesOutput({
 });
 
 // Instance
-const userData = fs.readFileSync(`/code/oci-free/cloud-init/cloud-init.yaml`, {
-  encoding: "base64",
-});
 const pubKeyFile = fs.readFileSync(`${process.env.INSTANCE_PUBLIC_KEY_NAME}`, {
   encoding: "utf-8",
 });
@@ -173,7 +170,6 @@ const instance = new oci.core.Instance(`${DEFAULT_TAG}-instance`, {
   preserveBootVolume: false,
   metadata: {
     ssh_authorized_keys: pubKeyFile,
-    user_data: userData,
   },
   agentConfig: {
     areAllPluginsDisabled: true,
