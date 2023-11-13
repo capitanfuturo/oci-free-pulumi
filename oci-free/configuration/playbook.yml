@@ -1,0 +1,12 @@
+---
+- name: SERVER BOOTSTRAP
+  hosts: ociserver
+  become: yes
+  roles:
+    - ubuntu-bootstrap
+
+- name: DOCKER INSTALLATION
+  hosts: ociserver
+  become: yes
+  roles:
+    - docker

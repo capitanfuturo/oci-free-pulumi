@@ -7,8 +7,12 @@ if [ -d "/host-ssh" ]; then
     chmod -R 600 /root/.ssh/*.key
 fi
 
-echo "Installing update"
-cd oci-free/infrastructure
+echo "Installing Ansible requirements"
+cd /code/oci-free/configuration
+ansible-galaxy install -r requirements.yml
+
+echo "Installing Pulumi"
+cd /code/oci-free/infrastructure
 npm install
 
 ecog "Go to pulumi"
@@ -29,4 +33,5 @@ pulumi config set oci:tenancyOcid ${TENANCY_OCID}
 pulumi config set oci:privateKeyPath ${PRIVATE_KEY_PATH}
 pulumi config set oci:region ${REGION}
 
+cd /code/oci-free
 bash

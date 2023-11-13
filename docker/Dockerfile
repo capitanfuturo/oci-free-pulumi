@@ -5,12 +5,17 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     ca-certificates \
     bash-completion \
     curl \
+    python3 \
+    python3-pip \
     make && \
-    apt-get clean
+    apt-get clean all
 
 RUN curl -fsSL https://get.pulumi.com | sh
 RUN mkdir /usr/bin/.pulumi && mv /root/.pulumi/* /usr/bin/.pulumi/ 
 ENV PATH "$PATH:/usr/bin/.pulumi/bin/"
+
+RUN pip3 install --upgrade pip; \
+    pip3 install ansible
 
 ARG USER_OCID
 ARG FINGERPRINT

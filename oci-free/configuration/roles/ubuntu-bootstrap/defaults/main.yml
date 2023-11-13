@@ -1,0 +1,11 @@
+reboot_always: No
+reboot_delay: 8
+reboot_up_delay: 16
+reboot_message: "Ansible role robertdebock.reboot initiated a reboot."
+
+ntp_enabled: True
+ntp_timezone: Europe/Berlin
+
+swap_file_size_mb: "4096"
+swap_swappiness: "60"
+swap_file_state: present

@@ -1,0 +1,39 @@
+---
+# removes snapd
+- name: Remove snapd.
+  apt:
+    name: snapd
+    state: absent
+    autoremove: true
+
+# remove automatic updates
+- name: Remove unattended-upgrades
+  apt:
+    name: unattended-upgrades
+    state: absent
+    autoremove: true
+
+# updates packages
+- name: Include robertdebock.update
+  include_role:
+    name: robertdebock.update
+
+# network time protocol to ensure datetime consistency
+- name: Include geerlingguy.ntp
+  include_role:
+    name: geerlingguy.ntp
+
+# installs pip
+- name: Include geerlingguy.pip
+  include_role:
+    name: geerlingguy.pip
+
+# adds swap
+- name: Include geerlingguy.swap
+  include_role:
+    name: geerlingguy.swap
+
+# reboots
+- name: Include robertdebock.reboot
+  include_role:
+    name: robertdebock.reboot

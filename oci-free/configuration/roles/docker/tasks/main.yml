@@ -1,0 +1,5 @@
+---
+# installs and configures docker and docker-compose
+- name: Include geerlingguy.docker
+  include_role:
+    name: geerlingguy.docker

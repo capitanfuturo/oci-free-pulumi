@@ -1,0 +1,13 @@
+# docker
+docker_edition: "ce"
+docker_package_state: present
+docker_service_state: started
+docker_service_enabled: true
+docker_service_manage: true
+docker_users:
+  - ubuntu
+
+# docker compose
+docker_install_compose_plugin: true
+docker_compose_package: docker-compose-plugin
+docker_compose_package_state: present

@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: plan_apply plan_destroy apply destroy_all
+#.PHONY: code oci 
 
 ##help: @ This help
 help:
