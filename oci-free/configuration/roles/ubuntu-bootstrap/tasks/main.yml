@@ -6,6 +6,11 @@
     state: absent
     autoremove: true
 
+- name: Add build essentials.
+  apt:
+    name: build-essential
+    state: present
+
 # remove automatic updates
 - name: Remove unattended-upgrades
   apt:

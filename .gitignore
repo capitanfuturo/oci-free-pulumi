@@ -3,3 +3,4 @@
 oci-free/infrastructure/package-lock.json
 oci-free/infrastructure/node_modules/
 oci-free/infrastructure/Pulumi.*.yaml
+oci-free/configuration/inventory.ini

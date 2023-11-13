@@ -10,3 +10,9 @@
   become: yes
   roles:
     - docker
+
+- name: NOIP CLIENT
+  hosts: ociserver
+  become: yes
+  roles:
+    - noip

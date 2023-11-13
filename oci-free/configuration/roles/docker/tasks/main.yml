@@ -3,3 +3,20 @@
 - name: Include geerlingguy.docker
   include_role:
     name: geerlingguy.docker
+
+# docker groups
+- name: Ensure group docker exists
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: add group
+  ansible.builtin.user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+# reboots
+- name: Include robertdebock.reboot
+  include_role:
+    name: robertdebock.reboot

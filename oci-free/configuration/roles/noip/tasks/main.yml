@@ -1,0 +1,53 @@
+- name: Check if client is to build
+  stat:
+    path: /usr/local/bin/noip-duc
+  register: client_bin
+
+- name: Download noip duc client
+  ansible.builtin.get_url:
+    url: https://dmej8g5cpdyqd.cloudfront.net/downloads/noip-duc_3.0.0-beta.7.tar.gz
+    group: ubuntu
+    owner: ubuntu
+    dest: /home/ubuntu/noip-duc_3.0.0-beta.7.tar.gz
+  when: not client_bin.stat.exists
+
+- name: Extract noip duc client
+  ansible.builtin.unarchive:
+    src: /home/ubuntu/noip-duc_3.0.0-beta.7.tar.gz
+    dest: /home/ubuntu
+    remote_src: true
+  when: not client_bin.stat.exists
+
+- name: Add cargo to build the package.
+  apt:
+    name: cargo
+    state: present
+  when: not client_bin.stat.exists
+
+- name: Build client
+  ansible.builtin.command: cargo build --release
+  args:
+    chdir: /home/ubuntu/noip-duc_3.0.0-beta.7
+  when: not client_bin.stat.exists
+
+- name: Install client
+  ansible.builtin.command: cp target/release/noip-duc /usr/local/bin
+  args:
+    chdir: /home/ubuntu/noip-duc_3.0.0-beta.7
+  when: not client_bin.stat.exists
+
+- name: Start daemon
+  ansible.builtin.command: noip-duc -u {{ lookup('env','NOIP_USERNAME') }} -p {{ lookup('env','NOIP_PASSWORD') }} -g {{ lookup('env','NOIP_HOSTNAMES') }} --daemonize
+  when: not client_bin.stat.exists
+
+- name: Cleanup files (1/2)
+  file:
+    path: /home/ubuntu/noip-duc_3.0.0-beta.7
+    state: absent
+  when: client_bin.stat.exists
+
+- name: Cleanup files (1/2)
+  file:
+    path: /home/ubuntu/noip-duc_3.0.0-beta.7.tar.gz
+    state: absent
+  when: client_bin.stat.exists
