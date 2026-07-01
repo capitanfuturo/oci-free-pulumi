@@ -52,6 +52,38 @@ pulumi up
 
 Review the proposed plan and confirm to provision the OCI infrastructure (compartment, VCN, instance, public IP, backup policy, etc.).
 
+## Configuring the new instance
+
+Once `pulumi up` succeeds, the instance still needs to be configured with Ansible — this handoff is manual, Pulumi does not update the inventory automatically.
+
+1. **Find the instance's public IP:**
+
+   ```
+   pulumi stack output instancePublicIp
+   ```
+
+2. **Populate the Ansible inventory.** Copy `inventory.template.ini` to `inventory.ini` (first time only) and set the public IP:
+
+   ```
+   cd /code/oci-free/configuration
+   cp inventory.template.ini inventory.ini
+   ```
+   ```ini
+   [ociserver]
+   <PUBLIC_IP>
+   ```
+
+3. **Run the playbook:**
+
+   ```
+   cd /code/oci-free/configuration
+   bash ansible-init.sh
+   ```
+
+   This runs `ansible-playbook playbook.yml -i inventory.ini --private-key ${INSTANCE_PRIVATE_KEY_NAME}`, which in order: removes `snapd`/`unattended-upgrades`, updates the system, configures NTP and swap, and reboots (`ubuntu-bootstrap`); installs Docker and adds `ubuntu` to the `docker` group (`docker`); and, if `NOIP_*` variables are set in `.env`, installs and daemonizes the No-IP DDNS client (`noip`).
+
+   The instance must already be reachable via SSH using the `INSTANCE_PRIVATE_KEY_NAME` key (the one injected as `ssh_authorized_keys` during provisioning).
+
 ## Destroying the stack
 
 To tear down the provisioned infrastructure, from the same container shell run:

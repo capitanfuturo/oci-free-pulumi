@@ -214,12 +214,14 @@ const privateIps = oci.core.getPrivateIpsOutput({
 });
 
 // Public Instance IP
-new oci.core.PublicIp(`${DEFAULT_TAG}-pub-ip`, {
+const publicIp = new oci.core.PublicIp(`${DEFAULT_TAG}-pub-ip`, {
   compartmentId: compartment.id,
   lifetime: "RESERVED",
   displayName: `${DEFAULT_TAG}-pub-ip`,
   privateIpId: privateIps.privateIps[0].id,
 });
+
+export const instancePublicIp = publicIp.ipAddress;
 
 // Instance Volume Backup
 const volumeBackupPolicy = new oci.core.VolumeBackupPolicy(
