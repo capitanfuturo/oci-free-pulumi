@@ -16,3 +16,9 @@
   become: yes
   roles:
     - noip
+
+- name: HEADSCALE VPN SERVER
+  hosts: ociserver
+  become: yes
+  roles:
+    - headscale

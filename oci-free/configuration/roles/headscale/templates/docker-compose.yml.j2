@@ -1,0 +1,28 @@
+services:
+  headscale:
+    image: "{{ headscale_image }}:{{ headscale_version }}"
+    container_name: headscale
+    restart: unless-stopped
+    command: serve
+    volumes:
+      - "{{ headscale_data_dir }}/config:/etc/headscale:ro"
+      - "{{ headscale_data_dir }}/lib:/var/lib/headscale"
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  headscale-admin:
+    image: "{{ headscale_admin_image }}:{{ headscale_admin_version }}"
+    container_name: headscale-admin
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    container_name: headscale-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "{{ headscale_data_dir }}/Caddyfile:/etc/caddy/Caddyfile:ro"
+      - "{{ headscale_data_dir }}/caddy_data:/data"
+      - "{{ headscale_data_dir }}/caddy_config:/config"

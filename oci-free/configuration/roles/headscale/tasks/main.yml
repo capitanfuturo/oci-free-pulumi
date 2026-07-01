@@ -1,0 +1,34 @@
+---
+- name: Ensure headscale directories exist
+  ansible.builtin.file:
+    path: "{{ headscale_data_dir }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - config
+    - lib
+    - caddy_data
+    - caddy_config
+
+- name: Template headscale config.yaml
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ headscale_data_dir }}/config/config.yaml"
+    mode: "0644"
+  notify: Restart headscale
+
+- name: Template Caddyfile
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "{{ headscale_data_dir }}/Caddyfile"
+    mode: "0644"
+  notify: Restart caddy
+
+- name: Template docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ headscale_data_dir }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Start headscale stack
+  ansible.builtin.command: docker compose -f {{ headscale_data_dir }}/docker-compose.yml up -d --remove-orphans

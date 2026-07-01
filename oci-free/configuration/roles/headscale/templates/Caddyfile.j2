@@ -1,0 +1,10 @@
+{{ headscale_public_url | regex_replace('^https?://', '') }} {
+
+	handle /admin* {
+		reverse_proxy headscale-admin:80
+	}
+
+	handle {
+		reverse_proxy headscale:8080
+	}
+}
