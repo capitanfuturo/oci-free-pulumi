@@ -7,6 +7,20 @@ if [ -d "/host-ssh" ]; then
     chmod -R 600 /root/.ssh/*.key
 fi
 
+echo "Configuring OCI CLI"
+mkdir -p /root/.oci
+if [ ! -f /root/.oci/config ]; then
+    cat > /root/.oci/config <<EOF
+[DEFAULT]
+user=${USER_OCID}
+fingerprint=${FINGERPRINT}
+tenancy=${TENANCY_OCID}
+region=${REGION}
+key_file=${PRIVATE_KEY_PATH}
+EOF
+    chmod 600 /root/.oci/config
+fi
+
 echo "Installing Ansible requirements"
 cd /code/oci-free/configuration
 ansible-galaxy install -r requirements.yml
@@ -15,13 +29,12 @@ echo "Installing Pulumi"
 cd /code/oci-free/infrastructure
 npm install
 
-ecog "Go to pulumi"
+echo "Go to pulumi"
 pulumi stack init oci-free
 status=$?
 if test $status -eq 0
 then
-    echo "Create the stack!"
-    pulumi stack init oci-free
+    echo "Stack created!"
 else
     echo "Stack already exists. Select it!"
 fi

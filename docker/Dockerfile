@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:22
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && apt-get -y install --no-install-recommends \ 
@@ -14,8 +14,8 @@ RUN curl -fsSL https://get.pulumi.com | sh
 RUN mkdir /usr/bin/.pulumi && mv /root/.pulumi/* /usr/bin/.pulumi/ 
 ENV PATH "$PATH:/usr/bin/.pulumi/bin/"
 
-RUN pip3 install --upgrade pip; \
-    pip3 install ansible
+RUN pip3 install --break-system-packages --upgrade pip; \
+    pip3 install --break-system-packages ansible oci-cli
 
 ARG USER_OCID
 ARG FINGERPRINT

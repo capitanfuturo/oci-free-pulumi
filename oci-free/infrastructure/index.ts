@@ -12,6 +12,7 @@ enum PORT_NUMBER {
   ssh = 22,
   http = 80,
   https = 443,
+  headscaleDerp = 3478,
 }
 
 enum PROTOCOL_NUMBER {
@@ -22,10 +23,10 @@ enum PROTOCOL_NUMBER {
 }
 
 const VM_OS_NAME = "Canonical Ubuntu";
-const VM_OS_VERSION = "22.04";
+const VM_OS_VERSION = "24.04";
 const VM_SHAPE = "VM.Standard.A1.Flex";
-const VM_RAM_SIZE = 24; // GB
-const VM_CPUS_NUM = 4;
+const VM_RAM_SIZE = 12; // GB
+const VM_CPUS_NUM = 2;
 const VM_BOOT_DISK_SIZE = "100"; // GB
 
 // compartement
@@ -97,6 +98,15 @@ new oci.core.DefaultSecurityList(`${DEFAULT_TAG}-security-list`, {
       tcpOptions: {
         min: PORT_NUMBER.https,
         max: PORT_NUMBER.https,
+      },
+    },
+    {
+      protocol: PROTOCOL_NUMBER.udp,
+      source: ALL_IP,
+      description: `Headscale embedded DERP relay from any origin`,
+      udpOptions: {
+        min: PORT_NUMBER.headscaleDerp,
+        max: PORT_NUMBER.headscaleDerp,
       },
     },
   ],
