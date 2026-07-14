@@ -1,7 +1,7 @@
 {{ headscale_public_url | regex_replace('^https?://', '') }} {
 
 	handle /admin* {
-		reverse_proxy headscale-admin:80
+		reverse_proxy headplane:3000
 	}
 
 	handle {

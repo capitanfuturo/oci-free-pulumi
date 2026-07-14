@@ -2,6 +2,8 @@ services:
   headscale:
     image: "{{ headscale_image }}:{{ headscale_version }}"
     container_name: headscale
+    labels:
+      me.tale.headplane.target: headscale
     restart: unless-stopped
     command: serve
     volumes:
@@ -10,10 +12,17 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
 
-  headscale-admin:
-    image: "{{ headscale_admin_image }}:{{ headscale_admin_version }}"
-    container_name: headscale-admin
+  headplane:
+    image: "{{ headplane_image }}:{{ headplane_version }}"
+    container_name: headplane
     restart: unless-stopped
+    depends_on:
+      - headscale
+    volumes:
+      - "{{ headscale_data_dir }}/headplane/config.yaml:/etc/headplane/config.yaml:ro"
+      - "{{ headscale_data_dir }}/headplane/data:/var/lib/headplane"
+      - "{{ headscale_data_dir }}/config/config.yaml:/etc/headscale/config.yaml:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   caddy:
     image: caddy:2

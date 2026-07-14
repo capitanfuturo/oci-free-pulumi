@@ -2,5 +2,5 @@
 - name: Restart headscale
   ansible.builtin.command: docker compose -f {{ headscale_data_dir }}/docker-compose.yml restart headscale
 
-- name: Restart caddy
-  ansible.builtin.command: docker compose -f {{ headscale_data_dir }}/docker-compose.yml restart caddy
+- name: Restart headplane
+  ansible.builtin.command: docker compose -f {{ headscale_data_dir }}/docker-compose.yml restart headplane

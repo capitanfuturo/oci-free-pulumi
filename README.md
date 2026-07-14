@@ -89,7 +89,7 @@ Once `pulumi up` succeeds, the instance still needs to be configured with Ansibl
 The `headscale` role deploys a self-hosted, Tailscale-compatible control server on the instance, as three Docker containers managed via `docker compose` in `/opt/headscale`:
 
 - **headscale** — the control-plane server itself, storing state in a local SQLite database and using Tailscale's default DERP relay map.
-- **headscale-admin** — a static web UI to manage users, nodes and ACLs, served under the `/admin` path.
+- **headplane** ([tale/headplane](https://github.com/tale/headplane)) — a web UI to manage users, nodes, DNS and ACLs, served under the `/admin` path. The playbook automatically provisions a headscale API key for it (via `docker exec headscale headscale apikeys create`) and a random cookie secret, both stored under `/opt/headscale/headplane/`.
 - **caddy** — reverse proxy in front of both, terminating TLS with an automatic Let's Encrypt certificate for the domain in `NOIP_HOSTNAMES`.
 
 No changes to the Pulumi infrastructure are needed: the default security list already opens ports 80/443, which is all Headscale requires (it doesn't act as a DERP relay, so no extra WireGuard port has to be exposed).
@@ -104,13 +104,13 @@ After the playbook has run at least once, SSH into the instance and:
    docker exec -it headscale headscale users create <username>
    ```
 
-2. Generate an API key for the admin UI:
+2. Generate a personal API key to log into the admin UI (this is separate from the one the playbook auto-generates for headplane's own backend access):
 
    ```
    docker exec -it headscale headscale apikeys create --expiration 90d
    ```
 
-3. Open `https://<your-domain>/admin` and paste the API key into headscale-admin's Settings page.
+3. Open `https://<your-domain>/admin` and paste the API key into headplane's login page.
 
 4. Connect a client:
 

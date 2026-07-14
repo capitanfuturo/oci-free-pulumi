@@ -1,7 +1,7 @@
 headscale_data_dir: /opt/headscale
 headscale_image: docker.io/headscale/headscale
-headscale_version: "0.23.0"
-headscale_admin_image: goodieshq/headscale-admin
-headscale_admin_version: "0.24"
+headscale_version: "0.28.0"
+headplane_image: ghcr.io/tale/headplane
+headplane_version: "0.6.3"
 headscale_public_url: "https://{{ lookup('env','NOIP_HOSTNAMES') }}"
 headscale_dns_base_domain: "ts.{{ lookup('env','NOIP_HOSTNAMES') }}"

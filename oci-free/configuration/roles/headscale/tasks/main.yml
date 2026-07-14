@@ -9,6 +9,7 @@
     - lib
     - caddy_data
     - caddy_config
+    - headplane/data
 
 - name: Template headscale config.yaml
   ansible.builtin.template:
@@ -22,7 +23,6 @@
     src: Caddyfile.j2
     dest: "{{ headscale_data_dir }}/Caddyfile"
     mode: "0644"
-  notify: Restart caddy
 
 - name: Template docker-compose.yml
   ansible.builtin.template:
@@ -30,5 +30,68 @@
     dest: "{{ headscale_data_dir }}/docker-compose.yml"
     mode: "0644"
 
+- name: Start headscale service
+  ansible.builtin.command: docker compose -f {{ headscale_data_dir }}/docker-compose.yml up -d headscale
+
+- name: Generate headplane cookie secret
+  ansible.builtin.shell: |
+    openssl rand -hex 16 > {{ headscale_data_dir }}/headplane/cookie_secret
+  args:
+    creates: "{{ headscale_data_dir }}/headplane/cookie_secret"
+    executable: /bin/bash
+
+- name: Check if headplane API key already exists
+  ansible.builtin.stat:
+    path: "{{ headscale_data_dir }}/headplane/api_key"
+  register: headplane_apikey_file
+
+- name: Wait for headscale API to be ready
+  ansible.builtin.command: docker exec headscale headscale users list
+  register: headscale_ready_check
+  changed_when: false
+  retries: 10
+  delay: 3
+  until: headscale_ready_check.rc == 0
+  when: not headplane_apikey_file.stat.exists
+
+- name: Create headplane API key in headscale
+  ansible.builtin.command: docker exec headscale headscale apikeys create --expiration 90d
+  register: headplane_apikey_result
+  changed_when: false
+  when: not headplane_apikey_file.stat.exists
+
+- name: Save headplane API key
+  ansible.builtin.copy:
+    content: "{{ headplane_apikey_result.stdout_lines[-1] }}"
+    dest: "{{ headscale_data_dir }}/headplane/api_key"
+    mode: "0600"
+  when: not headplane_apikey_file.stat.exists
+
+- name: Slurp headplane cookie secret
+  ansible.builtin.slurp:
+    src: "{{ headscale_data_dir }}/headplane/cookie_secret"
+  register: headplane_cookie_secret_raw
+
+- name: Slurp headplane API key
+  ansible.builtin.slurp:
+    src: "{{ headscale_data_dir }}/headplane/api_key"
+  register: headplane_apikey_raw
+
+- name: Set headplane secrets facts
+  ansible.builtin.set_fact:
+    headplane_cookie_secret: "{{ (headplane_cookie_secret_raw.content | b64decode).strip() }}"
+    headplane_api_key: "{{ (headplane_apikey_raw.content | b64decode).strip() }}"
+
+- name: Template headplane config.yaml
+  ansible.builtin.template:
+    src: headplane-config.yaml.j2
+    dest: "{{ headscale_data_dir }}/headplane/config.yaml"
+    mode: "0644"
+  notify: Restart headplane
+
 - name: Start headscale stack
   ansible.builtin.command: docker compose -f {{ headscale_data_dir }}/docker-compose.yml up -d --remove-orphans
+
+- name: Ensure caddy is running the current Caddyfile
+  ansible.builtin.command: docker exec headscale-caddy caddy reload --config /etc/caddy/Caddyfile
+  changed_when: false
