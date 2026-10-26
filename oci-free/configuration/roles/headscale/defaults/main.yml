@@ -5,3 +5,6 @@ headplane_image: ghcr.io/tale/headplane
 headplane_version: "0.8.2"
 headscale_public_url: "https://{{ lookup('env','NOIP_HOSTNAMES') }}"
 headscale_dns_base_domain: "ts.{{ lookup('env','NOIP_HOSTNAMES') }}"
+headplane_apikey_user: ubuntu
+headplane_apikey_user_path: "/home/{{ headplane_apikey_user }}/headplane_api_key"
+headplane_apikey_expiration: 90d

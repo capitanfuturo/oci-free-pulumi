@@ -1,0 +1,35 @@
+#!/bin/bash
+# Generates a new headscale API key for headplane, updates headplane's config and restarts it.
+# Managed by Ansible (roles/headscale) — local edits will be overwritten.
+set -euo pipefail
+
+EXPIRATION="${1:-{{ headplane_apikey_expiration }}}"
+DATA_DIR="{{ headscale_data_dir }}"
+KEY_FILE="$DATA_DIR/headplane/api_key"
+CONFIG_FILE="$DATA_DIR/headplane/config.yaml"
+USER_KEY_FILE="{{ headplane_apikey_user_path }}"
+
+if [ "$(id -u)" -ne 0 ]; then
+    exec sudo "$0" "$@"
+fi
+
+echo "Creating new headscale API key (expiration: $EXPIRATION)..."
+NEW_KEY="$(docker exec headscale headscale apikeys create --expiration "$EXPIRATION" | tail -n 1 | tr -d '[:space:]')"
+if [ -z "$NEW_KEY" ]; then
+    echo "Failed to create API key" >&2
+    exit 1
+fi
+
+install -m 0600 /dev/null "$KEY_FILE"
+printf '%s' "$NEW_KEY" > "$KEY_FILE"
+
+install -m 0600 -o {{ headplane_apikey_user }} -g {{ headplane_apikey_user }} /dev/null "$USER_KEY_FILE"
+printf '%s\n' "$NEW_KEY" > "$USER_KEY_FILE"
+
+sed -i -E "s|^(\s*api_key:).*|\1 \"$NEW_KEY\"|" "$CONFIG_FILE"
+
+echo "Restarting headplane..."
+docker compose -f "$DATA_DIR/docker-compose.yml" restart headplane
+
+echo "Done. New key saved to $USER_KEY_FILE"
+docker exec headscale headscale apikeys list

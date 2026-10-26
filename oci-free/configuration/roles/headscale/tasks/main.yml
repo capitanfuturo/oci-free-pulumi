@@ -55,7 +55,7 @@
   when: not headplane_apikey_file.stat.exists
 
 - name: Create headplane API key in headscale
-  ansible.builtin.command: docker exec headscale headscale apikeys create --expiration 90d
+  ansible.builtin.command: docker exec headscale headscale apikeys create --expiration {{ headplane_apikey_expiration }}
   register: headplane_apikey_result
   changed_when: false
   when: not headplane_apikey_file.stat.exists
@@ -81,6 +81,23 @@
   ansible.builtin.set_fact:
     headplane_cookie_secret: "{{ (headplane_cookie_secret_raw.content | b64decode).strip() }}"
     headplane_api_key: "{{ (headplane_apikey_raw.content | b64decode).strip() }}"
+
+- name: Copy headplane API key to user home
+  ansible.builtin.copy:
+    content: "{{ headplane_api_key }}\n"
+    dest: "{{ headplane_apikey_user_path }}"
+    owner: "{{ headplane_apikey_user }}"
+    group: "{{ headplane_apikey_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: Install headplane API key rotation script
+  ansible.builtin.template:
+    src: rotate-headplane-key.sh.j2
+    dest: "/home/{{ headplane_apikey_user }}/rotate-headplane-key.sh"
+    owner: "{{ headplane_apikey_user }}"
+    group: "{{ headplane_apikey_user }}"
+    mode: "0755"
 
 - name: Template headplane config.yaml
   ansible.builtin.template:
